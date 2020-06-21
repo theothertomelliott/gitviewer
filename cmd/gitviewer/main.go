@@ -16,10 +16,16 @@ import (
 var port = flag.Int("port", 8080, "port to listen on")
 
 func main() {
+	flag.Usage = func() {
+		fmt.Printf("Usage: gitviewer [options] <repo path or URL>\n")
+		flag.PrintDefaults()
+	}
+
 	flag.Parse()
+
 	args := flag.Args()
 	if len(args) < 1 {
-		fmt.Println("Usage:\n gitviewer [repo path or URL]")
+		flag.Usage()
 		return
 	}
 	repoPath := args[0]
