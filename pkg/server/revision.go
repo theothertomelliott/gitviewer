@@ -30,20 +30,29 @@ func (s *Server) revision(w http.ResponseWriter, req *http.Request) {
 	}
 
 	if len(filePath) > 0 && !strings.HasSuffix(filePath, "/") {
-		file, err := tree.File(filePath)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		contents, err := file.Contents()
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		fmt.Fprint(w, contents)
-		return
+		err = s.serveFileContent(w, tree, filePath)
+	} else {
+		err = s.serveDirectoryListing(w, tree, filePath)
 	}
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
 
+func (s *Server) serveFileContent(w http.ResponseWriter, tree *object.Tree, filePath string) error {
+	file, err := tree.File(filePath)
+	if err != nil {
+		return err
+	}
+	contents, err := file.Contents()
+	if err != nil {
+		return err
+	}
+	fmt.Fprint(w, contents)
+	return nil
+}
+
+func (s *Server) serveDirectoryListing(w http.ResponseWriter, tree *object.Tree, filePath string) error {
 	fileList := make(map[string]struct{})
 	dirList := make(map[string]struct{})
 	tree.Files().ForEach(func(f *object.File) error {
@@ -66,6 +75,7 @@ func (s *Server) revision(w http.ResponseWriter, req *http.Request) {
 	for _, file := range sortSet(fileList) {
 		fmt.Fprintf(w, "<a href=\"%v\">%v</a><br/>", file, file)
 	}
+	return nil
 }
 
 func sortSet(set map[string]struct{}) []string {
