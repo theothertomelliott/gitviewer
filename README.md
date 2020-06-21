@@ -18,3 +18,7 @@ the provided Git repo.
 A Git repository may be specified as either an http(s) URL to a Git repo (as may be used with `git clone`), or a path to a local directory containing a Git repo.
 
 Once started, you can browse to the server at: http://localhost:8080.
+
+For a list of all config flags:
+
+    $ gitviewer --help
