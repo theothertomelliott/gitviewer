@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"net/http"
@@ -12,12 +13,16 @@ import (
 	"github.com/theothertomelliott/gitviewer/pkg/server"
 )
 
+var port = flag.Int("port", 8080, "port to listen on")
+
 func main() {
-	if len(os.Args) < 2 {
+	flag.Parse()
+	args := flag.Args()
+	if len(args) < 1 {
 		fmt.Println("Usage:\n gitviewer [repo path or URL]")
 		return
 	}
-	repoPath := os.Args[1]
+	repoPath := args[0]
 
 	var (
 		s   *server.Server
@@ -53,8 +58,8 @@ func main() {
 	http.Handle("/", h)
 
 	go func() {
-		log.Println("Serving on port :8080")
-		err := http.ListenAndServe(":8080", nil)
+		log.Printf("Serving on port :%d", *port)
+		err := http.ListenAndServe(fmt.Sprintf(":%d", *port), nil)
 		if err != nil {
 			log.Fatal(err)
 		}
